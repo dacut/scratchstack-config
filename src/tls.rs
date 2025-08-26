@@ -1,4 +1,5 @@
 use {
+    base64::prelude::*,
     crate::error::{ConfigError, TlsConfigErrorKind},
     rustls::{Certificate, PrivateKey, ServerConfig},
     serde::Deserialize,
@@ -74,7 +75,7 @@ fn extract_cert_or_key<A>(
 
         if line.starts_with(end_mark) {
             take_base64 = false;
-            let der = base64::decode(&b64buf)
+            let der = BASE64_STANDARD.decode(&b64buf)
                 .map_err(|e| ConfigError::InvalidTlsConfig(TlsConfigErrorKind::InvalidBase64Encoding(e)))?;
             ders.push(f(der));
             b64buf = String::new();

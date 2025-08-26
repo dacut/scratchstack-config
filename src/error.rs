@@ -42,15 +42,15 @@ impl Display for ConfigError {
 impl Error for ConfigError {
     fn source(&self) -> Option<&(dyn Error + 'static)> {
         match self {
-            Self::IO(ref e) => Some(e),
+            Self::IO(e) => Some(e),
             Self::DeserError(e) => Some(e),
-            Self::InvalidTlsConfig(ref e) => match e {
+            Self::InvalidTlsConfig(e) => match e {
                 TlsConfigErrorKind::InvalidBase64Encoding(e) => Some(e),
                 TlsConfigErrorKind::TlsSetupFailed(e) => Some(e),
                 _ => None,
             },
             Self::InvalidDatabaseConfig(DatabaseConfigErrorKind::InvalidPasswordFileEncoding(_, e)) => Some(e),
-            Self::InvalidAddress(ref e) => Some(e),
+            Self::InvalidAddress(e) => Some(e),
             _ => None,
         }
     }
@@ -95,12 +95,9 @@ pub enum DatabaseConfigErrorKind {
 impl Display for DatabaseConfigErrorKind {
     fn fmt(&self, f: &mut Formatter) -> FmtResult {
         match &self {
-            Self::InvalidPasswordFileEncoding(s, ref e) => write!(f, "Invalid password file encoding: {s}: {e}"),
+            Self::InvalidPasswordFileEncoding(s, e) => write!(f, "Invalid password file encoding: {s}: {e}"),
             Self::MissingPassword => {
-                write!(
-                    f,
-                    "Database URL specifies a password placeholder but a password was not supplied"
-                )
+                write!(f, "Database URL specifies a password placeholder but a password was not supplied")
             }
         }
     }
