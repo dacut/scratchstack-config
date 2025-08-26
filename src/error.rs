@@ -44,11 +44,7 @@ impl Error for ConfigError {
         match self {
             Self::IO(e) => Some(e),
             Self::DeserError(e) => Some(e),
-            Self::InvalidTlsConfig(e) => match e {
-                TlsConfigErrorKind::InvalidBase64Encoding(e) => Some(e),
-                TlsConfigErrorKind::TlsSetupFailed(e) => Some(e),
-                _ => None,
-            },
+            Self::InvalidTlsConfig(TlsConfigErrorKind::TlsSetupFailed(e)) => Some(e),
             Self::InvalidDatabaseConfig(DatabaseConfigErrorKind::InvalidPasswordFileEncoding(_, e)) => Some(e),
             Self::InvalidAddress(e) => Some(e),
             _ => None,
@@ -105,7 +101,6 @@ impl Display for DatabaseConfigErrorKind {
 
 #[derive(Debug)]
 pub enum TlsConfigErrorKind {
-    InvalidBase64Encoding(base64::DecodeError),
     TlsSetupFailed(TlsError),
     InvalidCertificate,
     InvalidPrivateKey,
@@ -114,9 +109,6 @@ pub enum TlsConfigErrorKind {
 impl Display for TlsConfigErrorKind {
     fn fmt(&self, f: &mut Formatter) -> FmtResult {
         match &self {
-            TlsConfigErrorKind::InvalidBase64Encoding(e) => {
-                write!(f, "Invalid base64 encoding: {e}")
-            }
             TlsConfigErrorKind::TlsSetupFailed(e) => {
                 write!(f, "Invalid TLS configuration: {e}")
             }
